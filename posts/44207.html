@@ -1,0 +1,412 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>JUC并发编程 | 康康的blog</title><meta name="keywords" content="并发编程"><meta name="author" content="康康"><meta name="copyright" content="康康"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="​	 1.为什么要学习并发编程？​		可能大家都有疑问  为什么要学习并发编程  我工作了都没用过 或者说很少用过 所以到底要不要学习呢？ 可能很多人都是偏应用层的开发  做这些增删改查  如果是你说我就做一些增删改查 我觉得不学习也没有问题  如果你不想只限于增删改查想往更高的层面发展 那么我觉得你有必要去学习 ​		可以想一下我们平时使用的Tomcat服务器 一些RPC的框架一些消息队列 这些">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JUC并发编程">
+<meta property="og:url" content="https://kk0612i.cn/posts/44207.html">
+<meta property="og:site_name" content="康康的blog">
+<meta property="og:description" content="​	 1.为什么要学习并发编程？​		可能大家都有疑问  为什么要学习并发编程  我工作了都没用过 或者说很少用过 所以到底要不要学习呢？ 可能很多人都是偏应用层的开发  做这些增删改查  如果是你说我就做一些增删改查 我觉得不学习也没有问题  如果你不想只限于增删改查想往更高的层面发展 那么我觉得你有必要去学习 ​		可以想一下我们平时使用的Tomcat服务器 一些RPC的框架一些消息队列 这些">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
+<meta property="article:published_time" content="2022-06-26T09:19:03.000Z">
+<meta property="article:modified_time" content="2022-06-26T18:40:26.843Z">
+<meta property="article:author" content="康康">
+<meta property="article:tag" content="并发编程">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://kk0612i.cn/posts/44207"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: true
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'JUC并发编程',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-06-27 02:40:26'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.2.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Finews.gtimg.com%2Fnewsapp_bt%2F0%2F13374122824%2F641.jpg&amp;refer=http%3A%2F%2Finews.gtimg.com&amp;app=2002&amp;size=f9999,10000&amp;q=a80&amp;n=0&amp;g=0n&amp;fmt=auto?sec=1658487527&amp;t=4310c037d299b6deefa0d576d71a8fbb" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">6</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">5</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div><div class="menus_item"><a class="site-page" href="/talk/"><i class="fa-fw fas fa-heart"></i><span> 说说</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fpic1.win4000.com%2Fwallpaper%2F2019-08-29%2F5d674a6fc51e3.jpg&amp;refer=http%3A%2F%2Fpic1.win4000.com&amp;app=2002&amp;size=f9999,10000&amp;q=a80&amp;n=0&amp;g=0n&amp;fmt=auto?sec=1658338653&amp;t=f0a529df66434d183a5224ffa99bee90')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">康康的blog</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div><div class="menus_item"><a class="site-page" href="/talk/"><i class="fa-fw fas fa-heart"></i><span> 说说</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">JUC并发编程</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-06-26T09:19:03.000Z" title="发表于 2022-06-26 17:19:03">2022-06-26</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-06-26T18:40:26.843Z" title="更新于 2022-06-27 02:40:26">2022-06-27</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="JUC并发编程"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><p>​	</p>
+<h2 id="1-为什么要学习并发编程？"><a href="#1-为什么要学习并发编程？" class="headerlink" title="1.为什么要学习并发编程？"></a>1.为什么要学习并发编程？</h2><p>​		可能大家都有疑问  为什么要学习并发编程  我工作了都没用过 或者说很少用过 所以到底要不要学习呢？ 可能很多人都是偏应用层的开发  做这些增删改查  如果是你说我就做一些增删改查 我觉得不学习也没有问题  如果你不想只限于增删改查想往更高的层面发展 那么我觉得你有必要去学习</p>
+<p>​		可以想一下我们平时使用的Tomcat服务器 一些RPC的框架一些消息队列 这些框架 你说他们底层难道没有使用并发和多线程的知识吗? 肯定涉及到了的</p>
+<p>​		正所谓生活那有岁月安好  只是有人替你负重前行</p>
+<h2 id="2-进程与线程"><a href="#2-进程与线程" class="headerlink" title="2.进程与线程"></a>2.进程与线程</h2><p>​	本章内容：</p>
+<ol>
+<li>进程和线程的概念</li>
+<li>并行和并发的概念</li>
+<li>线程基本使用</li>
+</ol>
+<h3 id="2-1进程与线程"><a href="#2-1进程与线程" class="headerlink" title="2.1进程与线程"></a>2.1进程与线程</h3><h4 id="进程"><a href="#进程" class="headerlink" title="进程"></a>进程</h4><ul>
+<li>​	程序由指令的数据组成  但这些指令要运行 数据要读写  就必须将指令加载到CPU  数据加载至内存  在指令运行过程中还需要用到磁盘  网络设备  进程就是用来加载指令  管理内存  管理IO的</li>
+<li>当一个程序被运行 从磁盘加载这个程序的代码至内存  此时就开启了一个线程</li>
+<li>进程就可以视为程序的一个实例  大部分程序可以同时运行多个实例进程（例如记事本  画图  浏览器  等） 也有的程序只能启动一个实例进程（列如  网易云音乐  360安全卫士等）</li>
+</ul>
+<h4 id="线程"><a href="#线程" class="headerlink" title="线程"></a>线程</h4><ul>
+<li>一个进程之内可以分为一到多个线程</li>
+<li>一个线程就是一个指令流  将指令流中的一条条指令以一定的顺序交给CPU执行</li>
+<li>Java中  线程作为最小调度单位  进程作为资源分配的最小单位  在windows中进程是不活动的  只是作为线程的容器</li>
+</ul>
+<h4 id="二者对比"><a href="#二者对比" class="headerlink" title="二者对比"></a>二者对比</h4><ul>
+<li>进程基本上互相独立的  而进程存在于线程内  是进程的一个子集</li>
+<li>进程拥有共享的资源  如内存空间等  供其内部的线程共享</li>
+<li>进程间通信较为复杂<ul>
+<li>同一台计算机的进程通信称为IPC(Inter-process communication)</li>
+<li>不同计算机之间的进程通信  需要通过网络 并遵守共同的协议 列如Http</li>
+</ul>
+</li>
+<li>线程通信相对简单  因为他们共享进程内的内存 一个例子是多个线程可以访问同一个共享变量</li>
+<li>线程更轻量  线程上下文切换成本一般上要比进程上下文切换低</li>
+</ul>
+<h3 id="2-2并行与并发"><a href="#2-2并行与并发" class="headerlink" title="2.2并行与并发"></a>2.2并行与并发</h3><p>​	 单核cpu下  线程实际还是串行执行的  操作系统中有一个组件叫做任务调度器  将cpu的时间片(windows下时间片最小约为15毫秒) 分给不同的线程使用  只是由于cpu在线程间(时间片很短)的切换非常的快  人类感觉是同时运行的</p>
+<p>比如我一边听歌一边写代码  我们感觉是同时运行的 其实他底层是串行执行的</p>
+<p>  <strong>总结为一句话就是：微观串行  宏观并行</strong></p>
+<p>一般会将这种线程轮流使用CPU的做法称为并发 对应的英文单词：  concurrent</p>
+<p>但是现在的电脑动不动就是几核的  多核cpu下   每个核(core)都可以调度运行线程  这时线程可以是并行的</p>
+<p>:dagger:引用Rob Pike的一段描述：</p>
+<p>​		:sailboat:并发(concurrent)是同一时间应对(dealing with)多件事情的能力</p>
+<p>​		:first_quarter_moon:并行(parallel)是同一时间动手做(doing)多件事情的能力</p>
+<p>:hamburger: 例子：</p>
+<p>​	:first_quarter_moon_with_face:家庭主妇做饭  打扫卫生  给孩子喂奶  他一个人轮流交替做这么多件事  这时就是并发</p>
+<p>​	:dancer: 家庭主妇雇了个保姆  他们一起做这些事  这时既有并发  也有并行(这时会产生竞争  例如锅只有一口  一个人用锅时 另一个人就得等待)</p>
+<p>​	:dancers:雇了三个保姆  一个专打扫卫生  一个专喂奶  互不干扰  这时是并行</p>
+<h3 id="2-3应用"><a href="#2-3应用" class="headerlink" title="2.3应用"></a>2.3应用</h3><h4 id="应用与异步调用"><a href="#应用与异步调用" class="headerlink" title="应用与异步调用"></a>应用与异步调用</h4><p>从方法调用的角度来讲 如果</p>
+<ul>
+<li>需要等待结果返回  才能继续运行就是同步</li>
+<li>不需要等待结果返回  就能继续运行就是异步</li>
+</ul>
+<p><strong>注意：同步在多线程中还有另外一层意思 是让多个线程步调一致</strong></p>
+<h5 id="1）设计"><a href="#1）设计" class="headerlink" title="1）设计"></a>1）设计</h5><p>多线程可以让方法执行变为异步的(既不要巴巴干等着)比如说读取磁盘文件时 假设读取操作花费了5秒钟 如果没有线程调度机制  这5秒调用者什么都做不了  其代码都得暂停….</p>
+<p>看如下代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>    FileReader.read(Constants.FULL_PATH);<br>    log.debug(<span class="hljs-string">&quot;success&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>运行结果为：</p>
+<img src="/posts/44207/image-20220626215156943.png">
+
+
+
+<p>可以看到我需要等待主线程read读取完了之后 才会打印success  这个就是同步阻塞</p>
+<p>看如下代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>    <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(()-&gt; FileReader.read(Constants.FULL_PATH),<span class="hljs-string">&quot;read&quot;</span>).start();<br>    log.debug(<span class="hljs-string">&quot;success&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>运行结果为：</p>
+<img src="/posts/44207/image-20220626215733963.png">
+
+
+
+<p>可以看到打印success和读取的时间是在同一个时间执行的  这个就是异步 我不需要等待你执行完了 我再来执行 这个就是异步</p>
+<h5 id="2）结论"><a href="#2）结论" class="headerlink" title="2）结论"></a>2）结论</h5><p>​	:hamburger:比如在项目中  视频文件需要转换格式等操作比较费时  这时开一个新线程处理视频转换  避免线程阻塞主线程</p>
+<p>​	:hamburger:tomcat的异步servlet也是类似的目的  让用户线程处理耗时较长的操作  避免阻塞tomcat的工作线程 </p>
+<p>​	:hamburger:ui程序中  开线程进行其他操作  避免阻塞ui线程</p>
+<h4 id="应用之提高效率-案例1"><a href="#应用之提高效率-案例1" class="headerlink" title="应用之提高效率(案例1)"></a>应用之提高效率(案例1)</h4><p>充分利用多核cpu的优势  提高运行效率 想象下面的场景  执行3个计算  最后将计算结果汇总</p>
+<p>​	<img src="/posts/44207/image-20220626221524708.png"></p>
+<p>如果是串行执行  那么总共花费的时间是10+11+9+1&#x3D;31ms</p>
+<p>但是如果是四核cpu  各个核心分别使用线程1执行计算1 线程2执行计算2 线程3执行计算3  那么3个线程是并行的 花费时间只取决于最长的那个线程运行的时间  即11ms最后加上汇总时间只会花费12ms</p>
+<hr>
+<p><strong>注意</strong></p>
+<p>需要在多核cpu才能提高效率  单核仍然是轮流执行即使你单核使用了多线程他也还是轮流执行</p>
+<hr>
+<h5 id="1）设计-1"><a href="#1）设计-1" class="headerlink" title="1）设计"></a>1）设计</h5><p>注：</p>
+<p>​	c.i.MyBeanchmark.c是多线程求出1亿个数的结果</p>
+<p>​	c.i.MyBeanchmark.d是单线程下求出1亿个数的结果</p>
+<p>​	score是执行是时间</p>
+<p>​	这是在一台多核的电脑下使用多线程与单线程运行作为比较</p>
+<img src="/posts/44207/image-20220626223607252.png">
+
+<p>可以明显的看到多线程确实比单线程速度快了 </p>
+<p>注：</p>
+<p>​	在一台虚拟机下单核的cpu下执行</p>
+<img src="/posts/44207/image-20220626224430526.png">
+
+<p>可以看到在单核cpu下执行同样的计算 反而是多线程比较慢  单线程比较快</p>
+<h5 id="2）结论-1"><a href="#2）结论-1" class="headerlink" title="2）结论"></a>2）结论</h5><ol>
+<li>单核cpu下  多线程不能实际提高程序运行效率 只是为了能够在不同的任务之间切换  不同线程轮流使用cpu  不至于一个线程总占用cpu  别的线程没法干活</li>
+<li>多核cpu可以并行跑多个线程  但能否提高程序运行效率还是要分情况的<ol>
+<li>有些任务  经过精心设计 将任务拆分  并行执行 当然可以提高程序的运行效率  但不是所有计算任务都能拆分(参考后文的【阿姆达定律】)</li>
+<li>也不是所有任务都需要拆分  任务的目的如果不同  谈拆分和效率没啥意义</li>
+</ol>
+</li>
+<li>IO操作不占用cpu  只是我们一般拷贝文件使用的是【阻塞IO】 这时相当于线程虽然不用cpu  但需要一直等待IO结束  没能充分利用线程  所以才有后面的【非阻塞IO】和【异步IO】优化</li>
+</ol>
+<h2 id="3-Java线程"><a href="#3-Java线程" class="headerlink" title="3. Java线程"></a>3. Java线程</h2><p>本章内容：</p>
+<ul>
+<li>创建和运行线程</li>
+<li>查看线程</li>
+<li>线程API</li>
+<li>线程状态</li>
+</ul>
+<h3 id="3-1-创建和运行线程"><a href="#3-1-创建和运行线程" class="headerlink" title="3.1 创建和运行线程"></a>3.1 创建和运行线程</h3><p>实际上每一个Java程序 在启动的时候都已经创建了一个线程  就是主方法线程 也被称之为主线程  默认就有一个主线程在运行了</p>
+<p>如果你还想在创建一个线程可以使用以下方法：</p>
+<h4 id="方法一-直接使用Thread"><a href="#方法一-直接使用Thread" class="headerlink" title="方法一 :直接使用Thread"></a>方法一 :直接使用Thread</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>    <span class="hljs-type">Thread</span> <span class="hljs-variable">thread</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(<span class="hljs-string">&quot;newThread&quot;</span>)&#123;<br>        <span class="hljs-meta">@Override</span><br>        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">run</span><span class="hljs-params">()</span> &#123;<br>            log.debug(<span class="hljs-string">&quot;running...&quot;</span>);<br>        &#125;<br>    &#125;;<br>    thread.start();<br>    log.debug(<span class="hljs-string">&quot;running...&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<hr>
+<p>:hamburger: <strong>注意：</strong></p>
+<p>​		在new Thread这个类的时候并没有真正被系统的任务调度器调度并分配时间片 而只是在Java中创建了一个线程</p>
+<p>​		当调用start方法的时候他才会被系统的任务调度器调度并分配时间片让cpu去执行</p>
+<hr>
+<h4 id="方法二-使用Runnable配合Thread"><a href="#方法二-使用Runnable配合Thread" class="headerlink" title="方法二:使用Runnable配合Thread"></a>方法二:使用Runnable配合Thread</h4><ul>
+<li>Thread代表线程</li>
+<li>Runnable 代表可运行的任务(线程要执行的代码)</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>    <span class="hljs-type">Runnable</span> <span class="hljs-variable">r</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Runnable</span>() &#123;<br>        <span class="hljs-meta">@Override</span><br>        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">run</span><span class="hljs-params">()</span> &#123;<br>            log.debug(<span class="hljs-string">&quot;running...&quot;</span>);<br>        &#125;<br>    &#125;;<br>    <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(r,<span class="hljs-string">&quot;t1&quot;</span>).start();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这一种方式和第一种方式差不多 只是第二种方法更为灵活一点  他把任务和线程区分开来了</p>
+<p>任务是任务  线程是线程 建议使用第二种方式</p>
+<p>Java8中可以使用lambda表达式精简代码</p>
+<p>如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>    <span class="hljs-type">Runnable</span> <span class="hljs-variable">r</span> <span class="hljs-operator">=</span> () -&gt; log.debug(<span class="hljs-string">&quot;running...&quot;</span>);<br>    <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(r,<span class="hljs-string">&quot;t1&quot;</span>).start();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>代码更加简洁了….</p>
+<h4 id="原理之Thread与Runnable的关系"><a href="#原理之Thread与Runnable的关系" class="headerlink" title="原理之Thread与Runnable的关系"></a>原理之Thread与Runnable的关系</h4><p>分析Thread的源码 理清它与Runnable的关系</p>
+<p>Thread类是Runnable接口的子实现类</p>
+<p>跟进源码看看：</p>
+<p>​	<img src="/posts/44207/image-20220627000513362.png"></p>
+<img src="/posts/44207/image-20220627000710933.png">
+
+<img src="/posts/44207/image-20220627000956723.png">
+
+<img src="/posts/44207/image-20220627001055430.png">
+
+
+
+<p>可以看到Thread的run方法中判断了Runnable对象是否为空  如果为空那么他就使用子类(也就是Thread类)中的run方法  如果不为空  那么他会调用Runnable对象中的run方法</p>
+<p><strong>小结</strong>：</p>
+<ul>
+<li>方法1是把线程和任务合并在一起了  方法2 是把线程和任务分开了</li>
+<li>用Runnable更容易与线程池等高级API配合</li>
+<li>用Runnable让任务类脱离了Thread继承体系  更灵活</li>
+</ul>
+<h4 id="方法3-FutureTask-配合Thread"><a href="#方法3-FutureTask-配合Thread" class="headerlink" title="方法3: FutureTask 配合Thread"></a>方法3: FutureTask 配合Thread</h4><p>单词：</p>
+<p>​	Future：未来</p>
+<p>​	Task：任务</p>
+<p>FutureTask能够接收Callable类型的参数  用来处理有返回结果的情况</p>
+<p>代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> <span class="hljs-keyword">throws</span> ExecutionException, InterruptedException &#123;<br>    FutureTask&lt;Integer&gt; task = <span class="hljs-keyword">new</span> <span class="hljs-title class_">FutureTask</span>&lt;Integer&gt;(()-&gt;&#123;<br>        log.debug(<span class="hljs-string">&quot;running....&quot;</span>);<br>        Thread.sleep(<span class="hljs-number">2000</span>);<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>    &#125;);<br><br>    <span class="hljs-type">Thread</span> <span class="hljs-variable">thread</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(task, <span class="hljs-string">&quot;t1&quot;</span>);<br>    thread.start();<br>    log.debug(<span class="hljs-string">&quot;返回结果:&#123;&#125;&quot;</span>,task.get());<br>&#125;<br></code></pre></td></tr></table></figure>
+
+
+
+<p>运行结果：</p>
+<img src="/posts/44207/image-20220627003714395.png">
+
+<p>在任务对象中睡眠了2秒  task中的get方法是阻塞的  他必须得等任务对象返回了结果之后他才能获取  从时间上可以看的出来</p>
+<h3 id="3-2-观察多个线程同时运行"><a href="#3-2-观察多个线程同时运行" class="headerlink" title="3.2 观察多个线程同时运行"></a>3.2 观察多个线程同时运行</h3><p>​	主要是理解</p>
+<ul>
+<li>交替执行</li>
+<li>谁先谁后  不由我们控制</li>
+</ul>
+<p>​	</p>
+<p>代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>    <span class="hljs-type">Thread</span> <span class="hljs-variable">t1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(()-&gt;&#123;<br>        <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) &#123;<br>            log.debug(<span class="hljs-string">&quot;running1....&quot;</span>);<br>        &#125;<br>    &#125;,<span class="hljs-string">&quot;t1&quot;</span>);<br>    t1.start();<br>    <span class="hljs-type">Thread</span> <span class="hljs-variable">t2</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(()-&gt;&#123;<br>        <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>) &#123;<br>            log.debug(<span class="hljs-string">&quot;running2....&quot;</span>);<br>        &#125;<br>    &#125;,<span class="hljs-string">&quot;t2&quot;</span>);<br>    t2.start();<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>如果你是单核cpu不要运行这几行代码  因为这两个线程都在while(true)循环打印  操作系统所有程序都暂停了 都来运行你这两个循环了  只有在多核下你才能这样占用不了你所有的cpu资源</p>
+<p>运行结果：</p>
+<img src="/posts/44207/image-20220627005007310.png">
+
+<p>可以看到线程运行的顺序我们是控制不了的  包括打印的顺序  都是交由系统的任务调度器进行分配执行</p>
+<h3 id="3-3查看进程线程的方法"><a href="#3-3查看进程线程的方法" class="headerlink" title="3.3查看进程线程的方法"></a>3.3查看进程线程的方法</h3><p>windows：</p>
+<ul>
+<li><p>​		</p>
+</li>
+<li><p>任务管理器可以查看进程和线程数  也可以用来杀死进程</p>
+</li>
+<li><p>tasklist 查看进程</p>
+</li>
+<li><img src="/posts/44207/image-20220627010513629.png"></li>
+<li><p>taskkill 杀死进程</p>
+</li>
+<li><img src="/posts/44207/image-20220627010642342.png"></li>
+</ul>
+<p>&#x2F;F代表强制杀死</p>
+<p>&#x2F;PID 是通过指定PID进行杀死</p>
+<p>Linux</p>
+<ul>
+<li>ps -fe 查看所有进程</li>
+<li>ps -fT -p <PID>查看某个进程(PID)的所有线程</PID></li>
+<li>kill 杀死进程</li>
+<li>top  按大写 H 切换是否显示进程</li>
+<li>top -H -p <PID> 查看某个进程(PID)的所有线程</PID></li>
+</ul>
+<p>Java：</p>
+<ul>
+<li>jps命令查看所有Java进程</li>
+<li>jstack <PID>查看某个Java程序(PID)的所有线程状态</PID></li>
+<li>jconsole 来查看某个Java进程中线程的运行情况(图形界面)</li>
+</ul>
+<h3 id="3-4-原理之线程运行"><a href="#3-4-原理之线程运行" class="headerlink" title="3.4 原理之线程运行"></a>3.4 原理之线程运行</h3><h4 id="栈与栈帧"><a href="#栈与栈帧" class="headerlink" title="栈与栈帧"></a>栈与栈帧</h4><p>​	Java virtual machine stack(Java虚拟机栈)</p>
+<p>​	</p>
+<p>​	我们都知道JVM中由堆  栈   方法区所组成  其中栈内存是给谁用的呢？其实就是线程  每个线程启动后  虚拟机就会为其分配一块栈内存</p>
+<ul>
+<li>每个栈由多个栈帧(Frame)组成  对应着每次方法调用时所占用的内存</li>
+<li>每个线程只能有一个活动栈帧  对应着当前正在执行的那个方法</li>
+</ul>
+<h4 id="线程上下文切换-Thread-Context-Switch"><a href="#线程上下文切换-Thread-Context-Switch" class="headerlink" title="线程上下文切换 (Thread Context  Switch)"></a>线程上下文切换 (Thread Context  Switch)</h4><p>​	因为以下一些原因导致cpu不再执行当前的线程  转而执行另一个线程的代码</p>
+<ul>
+<li>线程的cpu时间片用完</li>
+<li>垃圾回收</li>
+<li>有更高优先级的线程需要运行</li>
+<li>线程自己调用了 sleep  yield  wait  join  park  synchronized  lock 等方法 程序当Context Switch发生时  需要由操作系统保存当前线程的状态  并恢复另一个线程的状态  Java中对应的概念就是程序计数器(Program counter Register) 他的作用是记住下一条jvm指令的执行地址  是线程私有的</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://kk0612i.cn">康康</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://kk0612i.cn/posts/44207.html">https://kk0612i.cn/posts/44207.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://kk0612i.cn" target="_blank">康康的blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/">并发编程</a></div><div class="post_share"><div class="social-share" data-image="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/gh/overtrue/share.js@master/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/posts/33444.html"><img class="next-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">JMeter压力测试工具安装以及快速使用</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%AD%A6%E4%B9%A0%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B%EF%BC%9F"><span class="toc-number">1.</span> <span class="toc-text">1.为什么要学习并发编程？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B"><span class="toc-number">2.</span> <span class="toc-text">2.进程与线程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B"><span class="toc-number">2.1.</span> <span class="toc-text">2.1进程与线程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%BF%9B%E7%A8%8B"><span class="toc-number">2.1.1.</span> <span class="toc-text">进程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B"><span class="toc-number">2.1.2.</span> <span class="toc-text">线程</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BA%8C%E8%80%85%E5%AF%B9%E6%AF%94"><span class="toc-number">2.1.3.</span> <span class="toc-text">二者对比</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-2%E5%B9%B6%E8%A1%8C%E4%B8%8E%E5%B9%B6%E5%8F%91"><span class="toc-number">2.2.</span> <span class="toc-text">2.2并行与并发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-3%E5%BA%94%E7%94%A8"><span class="toc-number">2.3.</span> <span class="toc-text">2.3应用</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E4%B8%8E%E5%BC%82%E6%AD%A5%E8%B0%83%E7%94%A8"><span class="toc-number">2.3.1.</span> <span class="toc-text">应用与异步调用</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1%EF%BC%89%E8%AE%BE%E8%AE%A1"><span class="toc-number">2.3.1.1.</span> <span class="toc-text">1）设计</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2%EF%BC%89%E7%BB%93%E8%AE%BA"><span class="toc-number">2.3.1.2.</span> <span class="toc-text">2）结论</span></a></li></ol></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%BA%94%E7%94%A8%E4%B9%8B%E6%8F%90%E9%AB%98%E6%95%88%E7%8E%87-%E6%A1%88%E4%BE%8B1"><span class="toc-number">2.3.2.</span> <span class="toc-text">应用之提高效率(案例1)</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#1%EF%BC%89%E8%AE%BE%E8%AE%A1-1"><span class="toc-number">2.3.2.1.</span> <span class="toc-text">1）设计</span></a></li><li class="toc-item toc-level-5"><a class="toc-link" href="#2%EF%BC%89%E7%BB%93%E8%AE%BA-1"><span class="toc-number">2.3.2.2.</span> <span class="toc-text">2）结论</span></a></li></ol></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-Java%E7%BA%BF%E7%A8%8B"><span class="toc-number">3.</span> <span class="toc-text">3. Java线程</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-%E5%88%9B%E5%BB%BA%E5%92%8C%E8%BF%90%E8%A1%8C%E7%BA%BF%E7%A8%8B"><span class="toc-number">3.1.</span> <span class="toc-text">3.1 创建和运行线程</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E4%B8%80-%E7%9B%B4%E6%8E%A5%E4%BD%BF%E7%94%A8Thread"><span class="toc-number">3.1.1.</span> <span class="toc-text">方法一 :直接使用Thread</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%B9%E6%B3%95%E4%BA%8C-%E4%BD%BF%E7%94%A8Runnable%E9%85%8D%E5%90%88Thread"><span class="toc-number">3.1.2.</span> <span class="toc-text">方法二:使用Runnable配合Thread</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8E%9F%E7%90%86%E4%B9%8BThread%E4%B8%8ERunnable%E7%9A%84%E5%85%B3%E7%B3%BB"><span class="toc-number">3.1.3.</span> <span class="toc-text">原理之Thread与Runnable的关系</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%96%B9%E6%B3%953-FutureTask-%E9%85%8D%E5%90%88Thread"><span class="toc-number">3.1.4.</span> <span class="toc-text">方法3: FutureTask 配合Thread</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-%E8%A7%82%E5%AF%9F%E5%A4%9A%E4%B8%AA%E7%BA%BF%E7%A8%8B%E5%90%8C%E6%97%B6%E8%BF%90%E8%A1%8C"><span class="toc-number">3.2.</span> <span class="toc-text">3.2 观察多个线程同时运行</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3%E6%9F%A5%E7%9C%8B%E8%BF%9B%E7%A8%8B%E7%BA%BF%E7%A8%8B%E7%9A%84%E6%96%B9%E6%B3%95"><span class="toc-number">3.3.</span> <span class="toc-text">3.3查看进程线程的方法</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-4-%E5%8E%9F%E7%90%86%E4%B9%8B%E7%BA%BF%E7%A8%8B%E8%BF%90%E8%A1%8C"><span class="toc-number">3.4.</span> <span class="toc-text">3.4 原理之线程运行</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%A0%88%E4%B8%8E%E6%A0%88%E5%B8%A7"><span class="toc-number">3.4.1.</span> <span class="toc-text">栈与栈帧</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E7%BA%BF%E7%A8%8B%E4%B8%8A%E4%B8%8B%E6%96%87%E5%88%87%E6%8D%A2-Thread-Context-Switch"><span class="toc-number">3.4.2.</span> <span class="toc-text">线程上下文切换 (Thread Context  Switch)</span></a></li></ol></li></ol></li></ol></div></div></div></div></main><footer id="footer" style="background-image: url('https://gimg2.baidu.com/image_search/src=http%3A%2F%2Fpic1.win4000.com%2Fwallpaper%2F2019-08-29%2F5d674a6fc51e3.jpg&amp;refer=http%3A%2F%2Fpic1.win4000.com&amp;app=2002&amp;size=f9999,10000&amp;q=a80&amp;n=0&amp;g=0n&amp;fmt=auto?sec=1658338653&amp;t=f0a529df66434d183a5224ffa99bee90')"><div id="footer-wrap"><div class="copyright">&copy;2022 By 康康</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>function loadWaline () {
+  function insertCSS () {
+    const link = document.createElement("link")
+    link.rel = "stylesheet"
+    link.href = "https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.css"
+    document.head.appendChild(link)
+  }
+
+  function initWaline () {
+    const waline = Waline.init(Object.assign({
+      el: '#waline-wrap',
+      serverURL: 'kk-comments.vercel.app',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+    }, {"placeholder":"有问题请留言！","meta":["nick","mail","link"],"requiredMeta":["nick","mail"],"lang":"zh-CN","emoji":["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],"dark":"html[data-user-color-scheme=\"dark\"]","avatar":"retro","avatarCDN":"https://seccdn.libravatar.org/avatar/","avatarForce":false,"wordLimit":0,"pageSize":10,"highlight":true,"copyright":false}))
+  }
+
+  if (typeof Waline === 'function') initWaline()
+  else {
+    insertCSS()
+    getScript('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.js').then(initWaline)
+  }
+}
+
+if ('Waline' === 'Waline' || !true) {
+  if (true) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+  else setTimeout(loadWaline, 0)
+} else {
+  function loadOtherComment () {
+    loadWaline()
+  }
+}</script></div><div class="aplayer no-destroy" data-id="7505934724" data-server="netease" data-type="playlist" data-fixed="true" data-autoplay="true"> </div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/fireworks.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer@1/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/gh/metowolf/MetingJS@1.2/dist/Meting.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
