@@ -1,0 +1,290 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>JVM | 康康的blog</title><meta name="keywords" content="JVM"><meta name="author" content="康康"><meta name="copyright" content="康康"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="引言1.什么是JVM？定义： ​	Java Virtual Machine - Java 程序的运行环境(Java 二进制字节码的运行环境) 好处：  一次编写，到处运行 自动内存管理 垃圾回收功能 数组下标越界检查 多态  比较： ​	jvm  jre  jdk     jdk：JVM+基础类库+编译工具 jre：JVM+基础类库 jvm：运行环境 2.学习JVM有什么用？ 面试 理解底层的实现">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JVM">
+<meta property="og:url" content="https://kk0612i.cn/posts/17374.html">
+<meta property="og:site_name" content="康康的blog">
+<meta property="og:description" content="引言1.什么是JVM？定义： ​	Java Virtual Machine - Java 程序的运行环境(Java 二进制字节码的运行环境) 好处：  一次编写，到处运行 自动内存管理 垃圾回收功能 数组下标越界检查 多态  比较： ​	jvm  jre  jdk     jdk：JVM+基础类库+编译工具 jre：JVM+基础类库 jvm：运行环境 2.学习JVM有什么用？ 面试 理解底层的实现">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
+<meta property="article:published_time" content="2022-06-29T08:03:55.000Z">
+<meta property="article:modified_time" content="2022-06-29T10:05:37.167Z">
+<meta property="article:author" content="康康">
+<meta property="article:tag" content="JVM">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://kk0612i.cn/posts/17374"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '天',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: true
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'JVM',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-06-29 18:05:37'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.2.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://gimg2.baidu.com/image_search/src=http%3A%2F%2Finews.gtimg.com%2Fnewsapp_bt%2F0%2F13374122824%2F641.jpg&amp;refer=http%3A%2F%2Finews.gtimg.com&amp;app=2002&amp;size=f9999,10000&amp;q=a80&amp;n=0&amp;g=0n&amp;fmt=auto?sec=1658487527&amp;t=4310c037d299b6deefa0d576d71a8fbb" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">9</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">7</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div><div class="menus_item"><a class="site-page" href="/talk/"><i class="fa-fw fas fa-heart"></i><span> 说说</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">康康的blog</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div><div class="menus_item"><a class="site-page" href="/talk/"><i class="fa-fw fas fa-heart"></i><span> 说说</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">JVM</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-06-29T08:03:55.000Z" title="发表于 2022-06-29 16:03:55">2022-06-29</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-06-29T10:05:37.167Z" title="更新于 2022-06-29 18:05:37">2022-06-29</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="JVM"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><h2 id="1-什么是JVM？"><a href="#1-什么是JVM？" class="headerlink" title="1.什么是JVM？"></a>1.什么是JVM？</h2><p>定义：</p>
+<p>​	Java Virtual Machine - Java 程序的运行环境(Java 二进制字节码的运行环境)</p>
+<p>好处：</p>
+<ul>
+<li>一次编写，到处运行</li>
+<li>自动内存管理 垃圾回收功能</li>
+<li>数组下标越界检查</li>
+<li>多态</li>
+</ul>
+<p>比较：</p>
+<p>​	jvm  jre  jdk</p>
+<img src="/posts/17374/image-20220629161125160.png">
+
+
+
+<p>jdk：JVM+基础类库+编译工具</p>
+<p>jre：JVM+基础类库</p>
+<p>jvm：运行环境</p>
+<h2 id="2-学习JVM有什么用？"><a href="#2-学习JVM有什么用？" class="headerlink" title="2.学习JVM有什么用？"></a>2.学习JVM有什么用？</h2><ul>
+<li>面试</li>
+<li>理解底层的实现原理</li>
+<li>中高级程序员的必备技能</li>
+</ul>
+<h2 id="3-常见的JVM"><a href="#3-常见的JVM" class="headerlink" title="3.常见的JVM"></a>3.常见的JVM</h2><img src="/posts/17374/image-20220629162021565.png">
+
+
+
+<h1 id="内存结构"><a href="#内存结构" class="headerlink" title="内存结构"></a>内存结构</h1><ol>
+<li>程序计数器</li>
+<li>虚拟机栈</li>
+<li>本地方法栈</li>
+<li>堆</li>
+<li>方法区</li>
+</ol>
+<h2 id="1-程序计数器"><a href="#1-程序计数器" class="headerlink" title="1.程序计数器"></a>1.程序计数器</h2><h3 id="1-1-定义"><a href="#1-1-定义" class="headerlink" title="1.1 定义"></a>1.1 定义</h3><p>Program Counter Register 程序计数器(寄存器)</p>
+<ul>
+<li>作用，是记住下一条jvm指令的执行地址</li>
+<li>特点<ul>
+<li>是线程私有的(每个线程都有他们自己的程序计数器)</li>
+<li>不会存在内存溢出(程序计数器唯一 一个不存在内存溢出)</li>
+</ul>
+</li>
+</ul>
+<h3 id="1-2作用"><a href="#1-2作用" class="headerlink" title="1.2作用"></a>1.2作用</h3><img src="/posts/17374/image-20220629163325960.png">
+
+<p>右侧是Java 源代码  这些源代码我们都知道不能直接被执行  他得经过一次编译  编译成我们左侧的二进制字节码 左侧好像看不懂… 没关系他其实是jvm指令  </p>
+<p>那这些指令能够直接交给cpu来执行吗？ </p>
+<p>还不行 必须要经过一个叫解释器才能执行</p>
+<p>如下:</p>
+<p>​	二进制字节码 &#x3D;&#x3D;&#x3D;&gt;解释器 &#x3D;&#x3D;&#x3D;&gt;机器码 &#x3D;&#x3D;&#x3D;&gt; CPU</p>
+<p>将二进制字节码文件交给解释器  让解释器解释成机器码 再交由给CPU执行</p>
+<p>那说这么多和我们程序计数器有什么关系呢？</p>
+<p>我们说到的程序计数器 <strong>他的作用就是在指令执行过程中记住下一条jvm指令的执行地址</strong></p>
+<p><strong>根据这个地址信息程序计数器就可以找到他 来执行他</strong></p>
+<p>二进制字节码 &#x3D;&#x3D;&#x3D;&gt;解释器 &#x3D;&#x3D;&#x3D;&gt; 程序计数器 &#x3D;&#x3D;&#x3D;&gt;机器码 &#x3D;&#x3D;&#x3D;&gt;CPU</p>
+<p>在物理上 实现程序计数器是通过一个叫寄存器来实现的  寄存器是整个cpu组件里读取速度最快的一个单元  因为我们读写指令这个动作是非常频繁的 Java在设计的时候就把我们cpu中的寄存器当作了我们的程序计数器 用它来存储地址  将来去读取这个地址</p>
+<h2 id="2-虚拟机栈"><a href="#2-虚拟机栈" class="headerlink" title="2.虚拟机栈"></a>2.虚拟机栈</h2><p>栈数据结构就好像子弹夹</p>
+<img src="/posts/17374/image-20220629171755718.png">
+
+<p>当你需要使用他的时候他就会找到你最上方的子弹让他出栈</p>
+<img src="/posts/17374/image-20220629171932287.png">
+
+<p>以此类推</p>
+<p>先进后出这种原理</p>
+<p>那Java中的虚拟机栈他到底是干什么用的呢  其实大家想一想  我们Java中每一个线程</p>
+<p>运行的时候需不需要给每个线程划分一个内存空间呢 ？ 答案是肯定的</p>
+<p>一个线程运行它需要一个栈 如果将来它有多个线程它就会有多个虚拟机栈  那每个栈内它又由什么组成的呢 ？</p>
+<p>一个栈内由多个栈帧组成</p>
+<img src="/posts/17374/image-20220629172427134.png">
+
+<p>那栈帧又是什么呢？</p>
+<p>一个栈帧就对应着一次方法的调用 线程最终是去执行代码的 而代码都是由一个个方法组成</p>
+<p>所以在线程运行的时候 每个方法所需要的内存我们就称之为栈帧 </p>
+<p>栈帧 - 每个方法运行时所需要的内存</p>
+<p>那我方法需要什么内存呢？</p>
+<p>参数&#x2F;局部变量&#x2F;有返回值的话还需要返回地址…</p>
+<p>方法执行就等同于方法入栈  方法执行完毕等同于方法出栈 也就将内存释放掉了</p>
+<p><strong>一个栈由多个栈帧组成</strong></p>
+<h3 id="2-1-定义"><a href="#2-1-定义" class="headerlink" title="2.1 定义"></a>2.1 定义</h3><p>Java Virtual Machine Stacks(Java 虚拟机栈)</p>
+<ul>
+<li>每个线程运行时所需要的内存 称为虚拟机栈</li>
+<li>每个栈由多个栈帧(Frame)组成 对应着每次方法调用时所占用的内存</li>
+<li>每个线程只能有一个活动栈帧  对应着当前正在执行的那个方法(就是栈顶部的方法就是活动栈帧)</li>
+</ul>
+<p>问题辨析</p>
+<ol>
+<li><p>垃圾回收是否涉及栈内存？</p>
+<p>不需要  因为我们栈内存他无非就是一次次方法的调用所产生的栈帧内存 而栈帧内存呢 在每一次方法调用后都会弹出栈 也就是说会被自动回收掉 所以根本不需要垃圾回收来管理我们栈内存 垃圾回收主要管理堆内存 栈内存不需要让垃圾回收做处理</p>
+</li>
+<li><p>栈内存分配越大越好吗？</p>
+</li>
+</ol>
+<p>​		并不是 栈内存划分的越大 反而会让你的线程数变少 思考一下  因为我们物理内存是一定的 比如说我一个线程他使用的是栈内存 一个线程他假设使用了1兆内存 物理内存有500兆 理论上可以有500个线程同时运行  但是如果我给每个线程栈内存设置为2兆内存 那么理论上你最多同时运行250个线程  所以说并不是划分的越大越好  划分的大了 通常只是能够进行更多次的方法递归调用 而不会增强你运行的效率 反而会影响到线程数目的变少  不建议设置的大一般采用系统默认大小</p>
+<ol>
+<li>方法区的局部变量是否线程安全？</li>
+</ol>
+<p>​		看一个变量线程是否是安全的  首先要看 这个变量是否是线程共享的还是对每个线程是私有的</p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="https://kk0612i.cn">康康</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://kk0612i.cn/posts/17374.html">https://kk0612i.cn/posts/17374.html</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://kk0612i.cn" target="_blank">康康的blog</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/JVM/">JVM</a></div><div class="post_share"><div class="social-share" data-image="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/gh/overtrue/share.js@master/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/posts/15099.html"><img class="next-cover" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">MySQL数据库的安装</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="waline-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BC%95%E8%A8%80"><span class="toc-number">1.</span> <span class="toc-text">引言</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E4%BB%80%E4%B9%88%E6%98%AFJVM%EF%BC%9F"><span class="toc-number">1.1.</span> <span class="toc-text">1.什么是JVM？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E5%AD%A6%E4%B9%A0JVM%E6%9C%89%E4%BB%80%E4%B9%88%E7%94%A8%EF%BC%9F"><span class="toc-number">1.2.</span> <span class="toc-text">2.学习JVM有什么用？</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-%E5%B8%B8%E8%A7%81%E7%9A%84JVM"><span class="toc-number">1.3.</span> <span class="toc-text">3.常见的JVM</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84"><span class="toc-number">2.</span> <span class="toc-text">内存结构</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#1-%E7%A8%8B%E5%BA%8F%E8%AE%A1%E6%95%B0%E5%99%A8"><span class="toc-number">2.1.</span> <span class="toc-text">1.程序计数器</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-%E5%AE%9A%E4%B9%89"><span class="toc-number">2.1.1.</span> <span class="toc-text">1.1 定义</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2%E4%BD%9C%E7%94%A8"><span class="toc-number">2.1.2.</span> <span class="toc-text">1.2作用</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-%E8%99%9A%E6%8B%9F%E6%9C%BA%E6%A0%88"><span class="toc-number">2.2.</span> <span class="toc-text">2.虚拟机栈</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#2-1-%E5%AE%9A%E4%B9%89"><span class="toc-number">2.2.1.</span> <span class="toc-text">2.1 定义</span></a></li></ol></li></ol></li></ol></div></div></div></div></main><footer id="footer" style="background-image: url('data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7')"><div id="footer-wrap"><div class="copyright">&copy;2022 By 康康</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>function loadWaline () {
+  function insertCSS () {
+    const link = document.createElement("link")
+    link.rel = "stylesheet"
+    link.href = "https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.css"
+    document.head.appendChild(link)
+  }
+
+  function initWaline () {
+    const waline = Waline.init(Object.assign({
+      el: '#waline-wrap',
+      serverURL: 'kk-comments.vercel.app',
+      pageview: false,
+      dark: 'html[data-theme="dark"]',
+      path: window.location.pathname,
+      comment: false,
+    }, {"placeholder":"有问题请留言！","meta":["nick","mail","link"],"requiredMeta":["nick","mail"],"lang":"zh-CN","emoji":["https://cdn.jsdelivr.net/gh/walinejs/emojis/weibo"],"dark":"html[data-user-color-scheme=\"dark\"]","avatar":"retro","avatarCDN":"https://seccdn.libravatar.org/avatar/","avatarForce":false,"wordLimit":0,"pageSize":10,"highlight":true,"copyright":false}))
+  }
+
+  if (typeof Waline === 'function') initWaline()
+  else {
+    insertCSS()
+    getScript('https://cdn.jsdelivr.net/npm/@waline/client/dist/waline.js').then(initWaline)
+  }
+}
+
+if ('Waline' === 'Waline' || !true) {
+  if (true) btf.loadComment(document.getElementById('waline-wrap'),loadWaline)
+  else setTimeout(loadWaline, 0)
+} else {
+  function loadOtherComment () {
+    loadWaline()
+  }
+}</script></div><div class="aplayer no-destroy" data-id="7505934724" data-server="netease" data-type="playlist" data-fixed="true" data-autoplay="true"> </div><canvas class="fireworks" mobile="false"></canvas><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/fireworks.min.js"></script><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/activate-power-mode.min.js"></script><script>POWERMODE.colorful = true;
+POWERMODE.shake = true;
+POWERMODE.mobile = false;
+document.body.addEventListener('input', POWERMODE);
+</script><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aplayer@1/dist/APlayer.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/aplayer@1/dist/APlayer.min.js"></script><script src="https://cdn.jsdelivr.net/gh/metowolf/MetingJS@1.2/dist/Meting.min.js"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
